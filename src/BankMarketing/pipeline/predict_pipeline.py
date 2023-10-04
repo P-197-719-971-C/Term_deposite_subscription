@@ -43,10 +43,10 @@ class CustomData:
         pdays: int,
         previous: int,
         emp.var.rate: float,
-        cons.price.idx: float,
-        cons.conf.idx: float,
+        cons_price_idx: float,
+        cons_conf_idx: float,
         euribor3m: float,
-        nr.employed: float) -> None:
+        nr_employed: float) -> None:
 
         self.job = job
         self.marital = marital
@@ -63,11 +63,11 @@ class CustomData:
         self.campaign = campaign
         self.pdays = pdays
         self.previous = previous
-        self.emp.var.rate = emp.var.rate
-        self.cons.price.idx = cons.price.idx
-        self.cons.conf.idx = cons.conf.idx   
+        self.emp_var_rate = emp.var.rate
+        self.cons_price_idx = cons.price.idx
+        self.cons_conf_idx = cons.conf.idx   
         self.euribor3m = euribor3m  
-        self.nr.employed = nr.employed
+        self.nr_employed = nr.employed
 
 
 

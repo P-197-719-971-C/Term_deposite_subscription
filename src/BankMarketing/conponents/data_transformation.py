@@ -1,15 +1,12 @@
 import sys
 import os
-
 import numpy as np
 import pandas as pd
-
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from imblearn.combine import SMOTETomek
-
+from category_encoders import TargetEncoder
 
 from src/BankMarketing.exception.exception import CustomException
 from src/BankMarketing.logging.logger import logging
@@ -31,7 +28,7 @@ class DataTransformation:
         This is responsible for data transformation
         '''
         try:
-            numerical_columns = [feature for feature in df.columns if df[feature].dtype != 'O']
+            numerical_columns = [feature for feature in df.columns if df[feature].dtype != 'O' ]
             categorical_columns = [feature for feature in df.columns if df[feature].dtype == 'O' and feature != 'y']
         
 
@@ -54,50 +51,69 @@ class DataTransformation:
                     ("cat_pipeline", cat_pipeline, categorical_columns)
                 ]
             )
+            encoder = TargetEncoder()
 
-            return preprocessor
+            return preprocessor, encoder
 
 
         except Exception as e:
             raise CustomException(e, sys)
     
-    def initiate_data_transformation(self, train_path, test_path):
+    def initiate_data_transformation(self, train_path,valid_path, test_path, raw_path):
 
         try:
-            train_df = pd.read_csv(train_path)
-            test_df = pd.read_csv(test_path)
+            logging.info("Read train, valid and test data completed")
 
-            logging.info("Read train and test data completed")
+            train_df = pd.read_csv(train_path)
+            valid_df = pd.read_csv(valid_path)
+            test_df = pd.read_csv(test_path)
+            df = pd.read_csv(raw_path)
+
             logging.info("obtaining preprocessing object")
 
-            preprocessing_obj = self.get_data_transformer_object()
+            preprocessing_obj, encoder_obj = self.get_data_transformer_object()
 
             target_column_name = "y"
+
             numerical_columns = [feature for feature in df.columns if df[feature].dtype != 'O']
+
+            features = df.drop(columns= [target_column_name], axis = 1)
+            target = df[target_column_name]
 
             input_feature_train_df = train_df.drop(columns=[target_column_name], axis = 1)
             target_feature_train_df = train_df[target_column_name]
 
+            input_feature_valid_df = valid_df.drop(columns=[target_column_name], axis = 1)
+            target_feature_valid_df = valid_df[target_column_name]
+
             input_feature_test_df = test_df.drop(columns=[target_column_name], axis = 1)
             target_feature_test_df = test_df[target_column_name]
 
-            logging.info(f"Applying preprocessing object on training dataframe and testing dataframe")
+            X_train_encoded = encoder.fit_transform(input_feature_train_df, target_feature_train_df)
+            X_valid_encoded = encoder.transform(input_feature_valid_df, target_feature_valid_df)
+            X_test_encoded = encoder.transform(input_feature_test_df, target_feature_test_df)
+            X_encoded =  encoder.transform(features, target)
+
+            logging.info(f"Applying preprocessing object on training, valid and testing dataframe")
 
             input_feature_train_arr=preprocessing_obj.fit_transform(input_feature_train_df)
+            input_feature_valid_arr=preprocessing_obj.transform(input_feature_valid_df)
             input_feature_test_arr=preprocessing_obj.transform(input_feature_test_df)
-
-            logging.info(f"Oversampling training data")
-
-            smk = SMOTETomek(random_state=42)
-            input_feature_train_arr, target_feature_train_df=smk.fit_resample(input_feature_train_arr,target_feature_train_df)
+            X = preprocessing_obj.transform(features)
         
-            logging.info(f"Converting to training and testing array including target variable")
+            logging.info(f"Converting to training valid and testing array including target variable")
 
+            df_arr_encoded = np.c[X_encoded, np.array(target)]
+            train_arr_encoded = np.c[X_train_encoded, np.array(target_feature_train_df)]
+            valid_arr_encoded = np.c_[X_valid_encoded, np.array(target_feature_valid_df)]
+            test_arr_encoded = np.c_[X_test_encoded,  np.array(target_feature_test_df)]
+
+            df_arr = np.c_[X, np.array(target)]
             train_arr = np.c_[
                 input_feature_train_arr, np.array(target_feature_train_df)
             ]
+            valid_arr = np.c_[input_feature_valid_arr, np.array(target_feature_valid_df)]
             test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
-
 
             logging.info(f"Saved preprocessing object.")
 
@@ -107,9 +123,14 @@ class DataTransformation:
             )
 
             return(
-
+                df_arr,
                 train_arr,
+                valid_arr,
                 test_arr,
+                df_arr_encoded,
+                train_arr_encoded,
+                valid_arr_encoded,
+                test_arr_encoded,
                 self.data_transformation_config.preprocessor_obj_file_path,
             )
 

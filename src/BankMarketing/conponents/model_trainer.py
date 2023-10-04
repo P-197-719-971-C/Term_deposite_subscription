@@ -10,11 +10,9 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from xgboost import XGBClassifier
 from catboost import CatBoostClassifier
-
-
-from sklearn.ensemble import (
-    AdaBoostClassifier,
-    RandomForestClassifier)
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.naive_bayes import GaussianNB
+from scipy.stats import randint, uniform
 
 
 from src/BankMarketing.exception.exception import CustomException
@@ -30,96 +28,128 @@ class ModelTrainer:
     def __init__(self):
         self.model_trainer_config = ModelTrainerConfig()
 
-    def initiate_model_trainer(self, train_array, test_array):
+    def initiate_model_trainer(self, df_arr, train_array, valid_array, test_array, df_arr_encoded, train_arr_encoded, valid_arr_encoded, test_arr_encoded):
         try:
-            logging.info("Splitting training and test data")
-            X_train, y_train, X_test, y_test = (
+            logging.info("Splitting training, valid and test data")
+
+            X, y, X_train, y_train, X_valid, y_valid, X_test, y_test = (
+                df_arr[:, :-1],
+                df_arr[:, -1],
                 train_array[:,:-1],
                 train_array[:,-1],
+                valid_array[:,:-1],
+                valid_array[:,-1],
                 test_array[:,:-1],
                 test_array[:,-1]
             )
+            X_encoded, y, X_train_encoded, y_train, X_valid_encoded, y_valid, X_test_encoded, y_test = (
+                df_arr_encoded[:, :-1],
+                df_arr_encoded[:, -1],
+                train_arr_encoded[:,:-1],
+                train_arr_encoded[:,-1],
+                valid_arr_encoded[:,:-1],
+                valid_arr_encoded[:,-1],
+                test_arr_encoded[:,:-1],
+                test_arr_encoded[:,-1]
+            )
             models = {
-                "Random Forest": RandomForestClassifier(),
-                "Decision Tree": DecisionTreeClassifier(),
                 "Logistic Regression": LogisticRegression(),
-                "XGBClassifier": XGBClassifier(),
-                "KNeighborsClassifier": KNeighborsClassifier(),
-                "SVC": SVC(),
-                "CatBoostClassifier": CatBoostClassifier(),
-                "AdaBoostClassifier": AdaBoostClassifier(),
+                "K-Neighbors Classifier": KNeighborsClassifier(),
+                "Support Vector Classifier": SVC(),
+                "Naive Bayes": GaussianNB(),
+                "Decision Tree": DecisionTreeClassifier(),
+                "Random Forest": RandomForestClassifier(),
+                "AdaBoost Classifier": AdaBoostClassifier(),
+                "XGBoost Classifier": XGBClassifier(scale_pos_weight=float(np.sum(y_train == 0)) /(3*np.sum(y_train == 1))),
+                "CatBoost Classifier": CatBoostClassifier(verbose=False)
             }
+
             
             params={
-                "Random Forest": {
-                    'n_estimators': [8,16,32,64,128,256]
-                },
-                "Decision Tree": {
-                    'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
-                    #'splitter':['best','random'],
-                    #'max_features':['sqrt','log2'],
-                },
-                "Logistic Regression": {
-                    'penalty':['l1', 'l2'],
-                    'C':[0.001, 0.01, 0.1, 1, 10, 100, 1000]
-                },
-                "XGBClassifier": {
-                    'learning_rate':[.1,.01,.05,.001],
-                    'n_estimators': [8,16,32,64,128,256]
-                },
-                "KNeighborsClassifier": {
-                    'n_neighbors':[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33]
-                },
-                "SVC": {
-                    'C':[0.001, 0.01, 0.1, 1, 10, 100, 1000],
-                    'kernel':['linear', 'poly', 'rbf','sigmoid']
-                },
-                "CatBoostClassifier": {
-                    'iterations':[100,200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,20]
-                },
-                "AdaBoostClassifier": {'n_estimators': [8,16,32,64,128,256],
-                'learning_rate': [0.0001, 0.001, 0.01, 0.1, 0.3, 1.0]
+            "Logistic Regression": {
+                'penalty':['l1', 'l2'],
+                'C':[0.01, 0.03, 0.1, 1, 10]
+            },
+            "K-Neighbors Classifier": {
+                'n_neighbors': np.arange(13,50).tolist()
+            },
+            "Support Vector Classifier": {
+                'C': [0.1, 1],
+                'kernel': ['linear', 'rbf'],
+                'gamma': [0.1, 1]
+            },
+            "Naive Bayes":{
+                'var_smoothing': np.logspace(-9, 0, 100)
+            },
+            "Decision Tree": {
+                'criterion':['gini', 'entropy', 'log_loss'],
+                'splitter':['best','random'],
+                'max_features':['sqrt','log2'],
+            },
+            "Random Forest": {
+                'n_estimators': [100,128,256,300,400],
+                'criterion':['gini'],
+                'max_features':['sqrt','log2'],
+                'max_depth': [None, 10, 20],  # Limit the maximum depth of trees
+                'min_samples_split': [2, 5, 10],  # Adjust minimum samples split
+                'min_samples_leaf': [1, 2, 4] 
+            },
+            "AdaBoost Classifier": {
+                'n_estimators': [64,128,256],
+                'learning_rate': [0.001, 0.01, 0.1]
+            },
+            "XGBoost Classifier": {
+                'learning_rate': [0.1, 0.01, 0.05, 0.001],
+                'n_estimators': [8, 16, 32, 64, 128, 256],
+                'max_depth': randint(3, 19),  # Random integer between 3 and 18
+                'gamma': uniform(1, 9),  # Random float between 1 and 10
+                'reg_alpha': randint(40, 181),  # Random integer between 40 and 180
+                'reg_lambda': uniform(0, 1),  # Random float between 0 and 1
+                'colsample_bytree': uniform(0.5, 0.5),  # Random float between 0.5 and 1
+                'min_child_weight': randint(0, 11)  # Random integer between 0 and 10
+            },
+            "CatBoost Classifier": {
+                'iterations': np.arange(100, 1300, 100).tolist(),
+                'learning_rate': [0.001, 0.004, 0.01, 0.1, 0.2, 0.3],
+                'depth': np.arange(1, 11).tolist(),
+                'l2_leaf_reg': [1, 3, 5, 7, 9],
+                'boosting_type': ['Ordered', 'Plain']
             }
             }
-     
+            scores = ['recall']
+
             logging.info("Evaluating best model")
                
 
-            model_report: dict = evaluate_classification_model(X_train=X_train, y_train=y_train, X_test=X_test,
-                                                  y_test=y_test, models = models, param=params)
-            
+            results_df, classifier = evaluate_classification_model(X, y, X_train, y_train, X_valid, y_valid, X_test, y_test, X_encoded, X_train_encoded, X_valid_encoded , X_test_encoded, models, params, cv=3, n_iter=5)
             
 
-            logging.info("Printing f1 scores")
 
-            for model_name, metrics in model_report.items():
-                score_f1 = metrics['f1']
-                print(f"f1 score for {model_name}: {score_f1}")
-
-            logging.info("Best model found on testing dataset")
-
-            best_model_name = max(model_report, key=lambda model: model_report[model]['f1'])
-            best_f1_score = model_report[best_model_name]['f1']
-            best_model = models[best_model_name]
-
-            logging.info("Checking if best model has f1 score more than 0.6")
             
-            if best_f1_score < 0.6:
+            logging.info("Checking if best model has recall is more than 0.6 and precision is greater than 0.5")
+
+            recall_df = results_df[(results_df["Test Recall"] > 0.6) & (results_df["Test Precision"] > 0.5)][["Model","Test Recall", "Test Precision"]]
+
+            if len(recall_df) = 0:
                 raise CustomException("No best model found")
-            logging.info("Best model found on both training and testing datasets")
+            else:
+                logging.info("Extracting best model name from recall")
 
-            logging.info("Saving best model")
+                best_model_name = recall_df.loc[recall_df['Test Recall'].idxmax(), "Model"]
+                best_model = classifier[best_model_name]
+                
+                logging.info("Best model found on training,  Valid and testing datasets")
 
-            save_object(
-                file_path=self.model_trainer_config.trained_model_file_path,
-                obj = best_model
+                logging.info("Saving best model")
+
+                save_object(
+                    file_path=self.model_trainer_config.trained_model_file_path,
+                    obj = best_model
+                
+                )
+                
             
-            )
-            logging.info("returning best f1 score")
-            
-            predicted = best_model.predict(X_test)
-            score_f1 = f1_score(y_test, predicted)
-            return score_f1
+            return recall_df, best_model_name, best_model, results_df, classifier 
 
         except Exception as e:
             raise CustomException(e, sys)

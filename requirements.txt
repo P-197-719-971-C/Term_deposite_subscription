@@ -4,5 +4,7 @@ seaborn
 matplotlib
 scikit-learn
 xgboost
+category_encoders
 catboost
+
 #-e .
