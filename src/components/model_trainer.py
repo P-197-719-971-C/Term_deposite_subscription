@@ -76,7 +76,7 @@ class ModelTrainer:
                 'max_iter' : [1000]
             },
             "K-Neighbors Classifier": {
-                'n_neighbors': np.arange(40,50).tolist()
+                'n_neighbors': [43]
             },
             "Support Vector Classifier": {
                 'C': [0.1, 1],
@@ -123,7 +123,7 @@ class ModelTrainer:
                 'boosting_type': ['Ordered', 'Plain']
             }'''
             
-            scores = ['recall']
+            # scores = ['recall']
 
             logging.info("Evaluating best model")
                

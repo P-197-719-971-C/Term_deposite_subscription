@@ -4,15 +4,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-"""from src.components.data_ingestion import DataIngestion
-from src.components.data_ingestion import DataIngestionConfig
-
-from src.components.data_transformation import DataTransformation
-from src.components.data_transformation import DataTransformationConfig
-
-from src.components.model_trainer import ModelTrainerConfig
-from src.components.model_trainer import ModelTrainer"""
-
 from src.pipeline.predict_pipeline import PredictPipeline
 from src.pipeline.predict_pipeline import CustomData
 
@@ -65,7 +56,8 @@ with tab1:
         euribor3m = st.number_input("euribor 3 month rate - daily indicator", 0.634, 5.045, 4.857)
         nr_employed = st.number_input("number of employees - quarterly indicator", 4963, 5228, 5191)
 
-    custom_inputs = CustomData()
+    custom_inputs = CustomData(job, marital, education, loan, contact, month, day_of_week, poutcome, age, duration, campaign,
+                                pdays, previous, emp_var_rate, cons_price_idx, cons_conf_idx, euribor3m, nr_employed)
     custom_df = custom_inputs.get_data_as_data_frame()
 
     predict_pipeline = PredictPipeline()
