@@ -1,0 +1,30 @@
+[ 2023-10-05 19:44:07,872 ] 160 numexpr.utils - INFO - NumExpr defaulting to 8 threads.
+[ 2023-10-05 19:44:09,198 ] 30 root - INFO - Entered the data ingestion method or component
+[ 2023-10-05 19:44:09,198 ] 34 root - INFO - Read the dataset as dataframe
+[ 2023-10-05 19:44:09,291 ] 38 root - INFO - Dropping dupicated rows
+[ 2023-10-05 19:44:09,323 ] 42 root - INFO - Mapping the target column to 1 and 0
+[ 2023-10-05 19:44:09,328 ] 46 root - INFO - relacing unknown with Nan Type
+[ 2023-10-05 19:44:09,337 ] 50 root - INFO - dropping default column
+[ 2023-10-05 19:44:09,341 ] 58 root - INFO - train valid test split
+[ 2023-10-05 19:44:09,371 ] 62 root - INFO - Making directory for training data
+[ 2023-10-05 19:44:09,371 ] 69 root - INFO - Saving the split datasets to CSV files
+[ 2023-10-05 19:44:09,913 ] 77 root - INFO - Ingestion of the data is completed
+[ 2023-10-05 19:44:09,987 ] 46 root - INFO - Categorical columns: ['job', 'marital', 'education', 'housing', 'loan', 'contact', 'month', 'day_of_week', 'poutcome']
+[ 2023-10-05 19:44:09,987 ] 47 root - INFO - Numerical columns: ['age', 'duration', 'campaign', 'pdays', 'previous', 'emp_var_rate', 'cons_price_idx', 'cons_conf_idx', 'euribor3m', 'nr_employed']
+[ 2023-10-05 19:44:09,988 ] 66 root - INFO - Read train, valid and test data completed
+[ 2023-10-05 19:44:10,124 ] 73 root - INFO - obtaining preprocessing object
+[ 2023-10-05 19:44:10,196 ] 46 root - INFO - Categorical columns: ['job', 'marital', 'education', 'housing', 'loan', 'contact', 'month', 'day_of_week', 'poutcome']
+[ 2023-10-05 19:44:10,196 ] 47 root - INFO - Numerical columns: ['age', 'duration', 'campaign', 'pdays', 'previous', 'emp_var_rate', 'cons_price_idx', 'cons_conf_idx', 'euribor3m', 'nr_employed']
+[ 2023-10-05 19:44:10,197 ] 81 root - INFO - Saperating features and target columns
+[ 2023-10-05 19:44:10,200 ] 85 root - INFO - input and target features for training data
+[ 2023-10-05 19:44:10,203 ] 90 root - INFO - input and target features for valid data
+[ 2023-10-05 19:44:10,204 ] 95 root - INFO - input and target features for test data
+[ 2023-10-05 19:44:10,204 ] 100 root - INFO - Applying target encoding object on training, valid and testing dataframe
+[ 2023-10-05 19:44:10,552 ] 107 root - INFO - Applying preprocessing object on training, valid and testing dataframe
+[ 2023-10-05 19:44:10,740 ] 114 root - INFO - Converting to training valid and testing array including target variable
+[ 2023-10-05 19:44:10,755 ] 128 root - INFO - Saved preprocessing object.
+[ 2023-10-05 19:44:10,788 ] 135 root - INFO - Model Transformation is completed.
+[ 2023-10-05 19:44:10,791 ] 33 root - INFO - Splitting training, valid and test data
+[ 2023-10-05 19:44:10,794 ] 127 root - INFO - Evaluating best model
+[ 2023-10-05 19:44:10,795 ] 31 root - INFO - Model Logistic Regression has started training
+[ 2023-10-05 19:44:33,978 ] 31 root - INFO - Model K-Neighbors Classifier has started training
