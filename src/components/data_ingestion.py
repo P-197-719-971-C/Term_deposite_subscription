@@ -91,7 +91,6 @@ if __name__ == "__main__":
     train_data, valid_data, test_data, raw_data = obj.initiate_data_ingestion()
 
     data_transformation = DataTransformation()
-    preprocessor, encoder = data_transformation.get_data_transformer_object(raw_data)
     df_arr, train_arr, valid_arr, test_arr, df_arr_encoded, train_arr_encoded, valid_arr_encoded, test_arr_encoded,_=data_transformation.initiate_data_transformation(train_data, valid_data, test_data, raw_data)
 
     modeltrainer = ModelTrainer()

@@ -76,7 +76,7 @@ class ModelTrainer:
                 'max_iter' : [1000]
             },
             "K-Neighbors Classifier": {
-                'n_neighbors': np.arange(13,50).tolist()
+                'n_neighbors': np.arange(40,50).tolist()
             },
             "Support Vector Classifier": {
                 'C': [0.1, 1],

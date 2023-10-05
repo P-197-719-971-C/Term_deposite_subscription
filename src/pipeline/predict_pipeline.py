@@ -5,7 +5,6 @@ from src.logging.logger import logging
 from src.utils.common import load_object
 import os
 
-
 class PredictPipeline:
     def __init__(self):
         pass
@@ -89,16 +88,16 @@ class CustomData:
                 "campaign": [self.campaign],
                 "pdays": [self.pdays],
                 "previous": [self.previous],
-                "emp.var.rate": [self.emp_var_rate],
-                "cons.price.idx": [self.cons_price_idx],
-                "cons.conf.idx": [self.cons_conf_idx],
+                "emp_var_rate": [self.emp_var_rate],
+                "cons_price_idx": [self.cons_price_idx],
+                "cons_conf_idx": [self.cons_conf_idx],
                 "euribor3m": [self.euribor3m],
-                "nr.employed": [self.nr_employed]
+                "nr_employed": [self.nr_employed]
 
 
             }
-
-            return pd.DataFrame(custom_data_input_dict)
+            Custom_df = pd.DataFrame(custom_data_input_dict)
+            return Custom_df
 
         except Exception as e:
             raise CustomException(e, sys)
