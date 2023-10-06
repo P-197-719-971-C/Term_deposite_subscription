@@ -96,4 +96,4 @@ if __name__ == "__main__":
     modeltrainer = ModelTrainer()
     recall_df, best_model_name, best_model, results_df, classifier = modeltrainer.initiate_model_trainer(df_arr, train_arr, valid_arr, test_arr, df_arr_encoded, train_arr_encoded, valid_arr_encoded, test_arr_encoded)
     print(recall_df)
-    
+ 

@@ -36,13 +36,13 @@ def evaluate_classification_model(X, y, X_train, y_train, X_valid, y_valid, X_te
                 best_params = rs.best_params_
                 classifier[model_name] = model
 
-                model.set_params(**best_params)
+                classifier[model_name].set_params(**best_params)
 
-                model.fit(X_train_encoded, y_train)
+                classifier[model_name].fit(X_train_encoded, y_train)
 
-                y_train_pred = model.predict(X_train_encoded)
-                y_valid_pred = model.predict(X_valid_encoded)
-                y_test_pred = model.predict(X_test_encoded)
+                y_train_pred = classifier[model_name].predict(X_train_encoded)
+                y_valid_pred = classifier[model_name].predict(X_valid_encoded)
+                y_test_pred = classifier[model_name].predict(X_test_encoded)
 
             else:
                 
@@ -51,13 +51,13 @@ def evaluate_classification_model(X, y, X_train, y_train, X_valid, y_valid, X_te
                 best_params = rs.best_params_
                 classifier[model_name] = model
 
-                model.set_params(**best_params)
+                classifier[model_name].set_params(**best_params)
 
-                model.fit(X_train, y_train)
+                classifier[model_name].fit(X_train, y_train)
 
-                y_train_pred = model.predict(X_train)
-                y_valid_pred = model.predict(X_valid)
-                y_test_pred = model.predict(X_test)
+                y_train_pred = classifier[model_name].predict(X_train)
+                y_valid_pred = classifier[model_name].predict(X_valid)
+                y_test_pred = classifier[model_name].predict(X_test)
 
             accuracy_train = round(accuracy_score(y_train, y_train_pred), 2)
             accuracy_valid = round(accuracy_score(y_valid, y_valid_pred), 2)

@@ -29,7 +29,7 @@ class CustomData:
         job: str,
         marital: str,
         education: str,
-
+        housing: str,
         loan: str,
         contact: str,
         month: str,
@@ -50,7 +50,7 @@ class CustomData:
         self.job = job
         self.marital = marital
         self.education = education
-        
+        self.housing = housing
         self.loan = loan
         self.contact = contact
         self.month = month
@@ -76,7 +76,7 @@ class CustomData:
                 "job": [self.job],
                 "marital": [self.marital],
                 "education": [self.education],
-               
+                "housing": [self.housing],
                 "loan": [self.loan],
                 "contact": [self.contact],
                 "month": [self.month],

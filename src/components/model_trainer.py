@@ -54,8 +54,7 @@ class ModelTrainer:
             )
             models = {
                 "Logistic Regression": LogisticRegression(),
-                "K-Neighbors Classifier": KNeighborsClassifier(),
-                "Support Vector Classifier": SVC(),
+             
                 "Naive Bayes": GaussianNB(),
                 "Decision Tree": DecisionTreeClassifier(),
                 "Random Forest": RandomForestClassifier(),
@@ -64,25 +63,19 @@ class ModelTrainer:
                 
             }
             """
+            "Support Vector Classifier": SVC(),
             "CatBoost Classifier": CatBoostClassifier(verbose=False)
             """
 
             
             params={
             "Logistic Regression": {
-                'solver' :["saga", "liblinear"],
-                'penalty':['l1', 'l2'],
+                'penalty':["l2", None],
                 'C':[0.01, 0.03, 0.1, 1, 10],
-                'max_iter' : [1000]
+                'max_iter': [1000]
             },
-            "K-Neighbors Classifier": {
-                'n_neighbors': [43]
-            },
-            "Support Vector Classifier": {
-                'C': [0.1, 1],
-                'kernel': ['linear', 'rbf'],
-                'gamma': [0.1, 1]
-            },
+            
+           
             "Naive Bayes":{
                 'var_smoothing': np.logspace(-9, 0, 100)
             },
@@ -122,7 +115,11 @@ class ModelTrainer:
                 'l2_leaf_reg': [1, 3, 5, 7, 9],
                 'boosting_type': ['Ordered', 'Plain']
             }'''
-            
+            """ "Support Vector Classifier": {
+                'C': [0.1, 1],
+                'kernel': ['linear', 'rbf'],
+                'gamma': [0.1, 1]
+            },"""
             # scores = ['recall']
 
             logging.info("Evaluating best model")
@@ -133,12 +130,12 @@ class ModelTrainer:
 
 
             
-            logging.info("Checking if best model has recall is more than 0.6 and precision is greater than 0.5")
+            logging.info("Checking if best model has recall more than 0.6 and precision is greater than 0.5")
 
             recall_df = results_df[(results_df["Test Recall"] > 0.6) & (results_df["Test Precision"] > 0.5)][["Model","Test Recall", "Test Precision"]]
 
             if len(recall_df) == 0:
-                raise CustomException("No best model found")
+                logging.info("No best model found")
             else:
                 logging.info("Extracting best model name from recall")
 

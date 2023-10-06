@@ -3,20 +3,49 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
+from src.exception.exception import CustomException
+from src.logging.logger import logging
+from src.components.data_ingestion import DataIngestionConfig
+from src.components.data_ingestion import DataIngestion
+from src.components.data_transformation import DataTransformation
+from src.components.data_transformation import DataTransformationConfig
+from src.components.model_trainer import ModelTrainerConfig
+from src.components.model_trainer import ModelTrainer
 from src.pipeline.predict_pipeline import PredictPipeline
 from src.pipeline.predict_pipeline import CustomData
+from xgboost import plot_importance
+
+st.set_page_config(page_title="Term Deposit Prediction", page_icon="✅", layout="wide")
+
+@st.cache_data
+def load_data():
+    obj = DataIngestion()
+    train_data, valid_data, test_data, raw_data = obj.initiate_data_ingestion()
+
+    data_transformation = DataTransformation()
+    df_arr, train_arr, valid_arr, test_arr, df_arr_encoded, train_arr_encoded, valid_arr_encoded, test_arr_encoded,_ = data_transformation.initiate_data_transformation(train_data, valid_data, test_data, raw_data)
+
+    modeltrainer = ModelTrainer()
+    recall_df, best_model_name, best_model, results_df, classifier = modeltrainer.initiate_model_trainer(df_arr, train_arr, valid_arr, test_arr, df_arr_encoded, train_arr_encoded, valid_arr_encoded, test_arr_encoded)
+    return recall_df, best_model_name, best_model, results_df, classifier
+
+recall_df, best_model_name, best_model, results_df, classifier = load_data()
+
+
 
 
 with st.sidebar:
-    st.radio("Model",["Xgboost", "Logistic Regression"])
+    st.toggle(best_model_name)
 
+st.image("research/DallE logo.png", width=100)
+# Main content
+st.title("Term Deposit Subscription Prediction")
+st.header("Welcome to our banking app! Predict if a client will subscribe to a term deposit.")
 
-
-tab1, tab2  = st.tabs(["Predict", "Feature Importance"])
+tab1, tab2, tab3 = st.tabs(["Predict", "Feature Importance", "Models Scores"])
 
 with tab1:
-    st.title("Term Deposite Subscription")
+    
     st.divider()
     
     col1, col2, col3 = st.columns([2, 3, 2], gap = "medium")
@@ -56,26 +85,31 @@ with tab1:
         euribor3m = st.number_input("euribor 3 month rate - daily indicator", 0.634, 5.045, 4.857)
         nr_employed = st.number_input("number of employees - quarterly indicator", 4963, 5228, 5191)
 
-    custom_inputs = CustomData(job, marital, education, loan, contact, month, day_of_week, poutcome, age, duration, campaign,
+    custom_inputs = CustomData(job, marital, education, housing, loan, contact, month, day_of_week, poutcome, age, duration, campaign,
                                 pdays, previous, emp_var_rate, cons_price_idx, cons_conf_idx, euribor3m, nr_employed)
     custom_df = custom_inputs.get_data_as_data_frame()
 
     predict_pipeline = PredictPipeline()
     preds = predict_pipeline.predict(custom_df)
-
-    if st.button("Predict if the client will subscribe a term deposit?"):   
+    
+    if st.button("Predict"):   
         st.write("### Prediction Result:")
-        st.write(preds)
+        if preds == 0:
+            st.write("❌ Whoops! Customer will most likely not subscribe the term deposit")
+        elif preds == 1:
+            st.write("✅ Yay! The customer will most likely subscribe the term deposit")
 
 with tab2:
-    chart_data = pd.DataFrame(
-    {
-    "col1": list(range(20)) * 3,
-    "col2": np.random.randn(60),
-    "col3": ["A"] * 20 + ["B"] * 20 + ["C"] * 20,
-    }
-    )
+    fig, ax = plt.subplots()
+    plot_importance(best_model, ax= ax)
+    st.pyplot(fig)
 
-    st.bar_chart(chart_data, x="col1", y="col2", color="col3")
- 
+with tab3:
+    df = results_df[["Model", "Test Recall", "Test Precision", "Best Parameters"]].sort_values(by = "Test Recall", ascending = False)
+    st.title('Model scores')
+    st.dataframe(df)    
+    
+    
 
+st.markdown("---")
+st.write("Developed by Umrav Singh Shekhawat")
