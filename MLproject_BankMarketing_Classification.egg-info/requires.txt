@@ -1,8 +1,0 @@
-pandas
-numpy
-streamlit
-seaborn
-matplotlib
-scikit-learn
-xgboost
-category_encoders
