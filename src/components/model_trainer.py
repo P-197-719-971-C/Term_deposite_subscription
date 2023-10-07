@@ -54,7 +54,7 @@ class ModelTrainer:
             )
             models = {
                 "Logistic Regression": LogisticRegression(),
-             
+                "Support Vector Classifier": SVC(),
                 "Naive Bayes": GaussianNB(),
                 "Decision Tree": DecisionTreeClassifier(),
                 "Random Forest": RandomForestClassifier(),
@@ -63,7 +63,7 @@ class ModelTrainer:
                 
             }
             """
-            "Support Vector Classifier": SVC(),
+            ,
             "CatBoost Classifier": CatBoostClassifier(verbose=False)
             """
 
@@ -74,7 +74,11 @@ class ModelTrainer:
                 'C':[0.01, 0.03, 0.1, 1, 10],
                 'max_iter': [1000]
             },
-            
+            "Support Vector Classifier": {
+                'C': [0.1, 1],
+                'kernel': ['linear', 'rbf'],
+                'gamma': [0.1, 1]
+            },
            
             "Naive Bayes":{
                 'var_smoothing': np.logspace(-9, 0, 100)
@@ -115,11 +119,7 @@ class ModelTrainer:
                 'l2_leaf_reg': [1, 3, 5, 7, 9],
                 'boosting_type': ['Ordered', 'Plain']
             }'''
-            """ "Support Vector Classifier": {
-                'C': [0.1, 1],
-                'kernel': ['linear', 'rbf'],
-                'gamma': [0.1, 1]
-            },"""
+            """ """
             # scores = ['recall']
 
             logging.info("Evaluating best model")

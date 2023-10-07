@@ -2,42 +2,43 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 from src.exception.exception import CustomException
 from src.logging.logger import logging
-from src.components.data_ingestion import DataIngestionConfig
-from src.components.data_ingestion import DataIngestion
-from src.components.data_transformation import DataTransformation
-from src.components.data_transformation import DataTransformationConfig
-from src.components.model_trainer import ModelTrainerConfig
-from src.components.model_trainer import ModelTrainer
 from src.pipeline.predict_pipeline import PredictPipeline
 from src.pipeline.predict_pipeline import CustomData
 from xgboost import plot_importance
-
+from src.utils.common import load_object
 st.set_page_config(page_title="Term Deposit Prediction", page_icon="✅", layout="wide")
 
 @st.cache_data
 def load_data():
-    obj = DataIngestion()
-    train_data, valid_data, test_data, raw_data = obj.initiate_data_ingestion()
+    best_model_name_path =os.path.join("artifacts","best_model_name.pkl")
+    best_model_path=os.path.join('artifacts','best_model.pkl')
+    classifier_path=os.path.join('artifacts','classifier.pkl')
+    recall_df_path=os.path.join('artifacts','recall_df.pkl')
+    results_df_path=os.path.join('artifacts','results_df.pkl')
+    preprocessor_path=os.path.join('artifacts','preprocessor.pkl')
 
-    data_transformation = DataTransformation()
-    df_arr, train_arr, valid_arr, test_arr, df_arr_encoded, train_arr_encoded, valid_arr_encoded, test_arr_encoded,_ = data_transformation.initiate_data_transformation(train_data, valid_data, test_data, raw_data)
+    best_model_name=load_object(file_path=best_model_name_path)
+    best_model =load_object(file_path=best_model_path)
+    classifier=load_object(file_path=classifier_path)
+    recall_df=load_object(file_path=recall_df_path)
+    results_df=load_object(file_path=results_df_path)
+    preprocessor=load_object(file_path=preprocessor_path)
+    return best_model_name, best_model, classifier, recall_df, results_df, preprocessor
 
-    modeltrainer = ModelTrainer()
-    recall_df, best_model_name, best_model, results_df, classifier = modeltrainer.initiate_model_trainer(df_arr, train_arr, valid_arr, test_arr, df_arr_encoded, train_arr_encoded, valid_arr_encoded, test_arr_encoded)
-    return recall_df, best_model_name, best_model, results_df, classifier
-
-recall_df, best_model_name, best_model, results_df, classifier = load_data()
-
-
-
+best_model_name, best_model, classifier, recall_df, results_df, preprocessor = load_data()
 
 with st.sidebar:
-    st.toggle(best_model_name)
+    model_name = st.selectbox("Select the model 👇", ["XGBoost Classifier", "Decision Tree", "Naive Bayes", "Logistic Regression", "AdaBoost Classifier", "Random Forest", "Support Vector Classifier"])
+    if model_name == 'XGBoost Classifier':
+        st.write('You selected the best model.')
+    else:
+        st.write("You didn\'t select the best model.")
 
-st.image("research/DallE logo.png", width=100)
+#st.image("research/DallE logo.png", width=100)
 # Main content
 st.title("Term Deposit Subscription Prediction")
 st.header("Welcome to our banking app! Predict if a client will subscribe to a term deposit.")
@@ -89,8 +90,10 @@ with tab1:
                                 pdays, previous, emp_var_rate, cons_price_idx, cons_conf_idx, euribor3m, nr_employed)
     custom_df = custom_inputs.get_data_as_data_frame()
 
-    predict_pipeline = PredictPipeline()
-    preds = predict_pipeline.predict(custom_df)
+    """predict_pipeline = PredictPipeline()
+    preds = predict_pipeline.predict(custom_df)"""
+    data_scaled=preprocessor.transform(custom_df)
+    preds = classifier[model_name].predict(data_scaled)
     
     if st.button("Predict"):   
         st.write("### Prediction Result:")
@@ -100,9 +103,29 @@ with tab1:
             st.write("✅ Yay! The customer will most likely subscribe the term deposit")
 
 with tab2:
-    fig, ax = plt.subplots()
-    plot_importance(best_model, ax= ax)
-    st.pyplot(fig)
+    if model_name == "XGBoost Classifier":
+        fig, ax = plt.subplots()
+        plot_importance(classifier[model_name], ax= ax)
+        st.pyplot(fig)
+    elif model_name in ["Logistic Regression", "Support Vector Classifier", "Naive Bayes"]:
+        st.write("Feature importance curve couldn't be generated using XGBoost, our best model. Don't worry, there are plenty of other exciting options to explore! 😊 ")
+        
+    else:
+        feature_importance = classifier[model_name].feature_importances_
+
+        # Create a DataFrame for visualization
+        feature_importance_df = pd.DataFrame({'Importance': feature_importance})
+
+        # Streamlit app
+        st.title('Feature Importance Plot')
+
+        # Plot feature importance without feature labels
+        st.write("Feature Importance Plot:")
+        fig, ax = plt.subplots()
+        ax.barh(range(len(feature_importance)), feature_importance)
+        ax.set_xlabel('Importance')
+        ax.set_yticks([])  # Remove y-axis ticks and labels
+        st.pyplot(fig)
 
 with tab3:
     df = results_df[["Model", "Test Recall", "Test Precision", "Best Parameters"]].sort_values(by = "Test Recall", ascending = False)
