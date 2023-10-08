@@ -10,7 +10,20 @@ from src.pipeline.predict_pipeline import PredictPipeline
 from src.pipeline.predict_pipeline import CustomData
 from xgboost import plot_importance
 from src.utils.common import load_object
-st.set_page_config(page_title="Term Deposit Prediction", page_icon="✅", layout="wide")
+
+
+st.set_page_config(page_title="Term Deposit Prediction", page_icon="research/DallE logo.png", layout="wide")
+
+st.markdown("""
+<style>
+.big-font {
+    font-size:80px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+if 'user_input_data' not in st.session_state:
+    st.session_state.user_input_data = pd.DataFrame(columns = ["job", "marital", "education", "housing", "loan", "contact", "month",  "day_of_week", "poutcome", "age", "duration", "campaign", "pdays", "previous", "emp_var_rate", "cons_price_idx", "cons_conf_idx", "euribor3m", "nr_employed"])
 
 @st.cache_data
 def load_data():
@@ -42,19 +55,20 @@ with st.sidebar:
 # Main content
 st.title("Term Deposit Subscription Prediction")
 st.header("Welcome to our banking app! Predict if a client will subscribe to a term deposit.")
+st.caption(f"App developed by [Umrav Singh Shekhawat](https://www.linkedin.com/in/umrav-singh-shekhawat/)")
+st.divider()
 
-tab1, tab2, tab3 = st.tabs(["Predict", "Feature Importance", "Models Scores"])
+tab1, tab2, tab3, tab4 = st.tabs(["Predict", "Download Predictions", "Feature Importance", "Models Scores"])
 
 with tab1:
     
-    st.divider()
-    
+
     col1, col2, col3 = st.columns([2, 3, 2], gap = "medium")
     with col1:
         st.subheader("Bank Client Details", divider = "rainbow")
 
         #age = st.slider("What's the age", 27, 98, 38)
-        age = st.number_input("What's the age", 27, 98, 38)
+        age = st.number_input("What's the age", 27, 98, 38,help="Enter customer's age")
         job = st.selectbox("Type of job", ['housemaid', 'services', 'admin.', 'blue-collar', 'technician', 'retired', 'management', 'unemployed',
                 'self-employed', 'entrepreneur', 'student'], index = 2)
         marital = st.selectbox('Marital Status', ['married', 'single', 'divorced'], index = 0   )
@@ -90,19 +104,26 @@ with tab1:
                                 pdays, previous, emp_var_rate, cons_price_idx, cons_conf_idx, euribor3m, nr_employed)
     custom_df = custom_inputs.get_data_as_data_frame()
 
-    """predict_pipeline = PredictPipeline()
-    preds = predict_pipeline.predict(custom_df)"""
-    data_scaled=preprocessor.transform(custom_df)
-    preds = classifier[model_name].predict(data_scaled)
+    
     
     if st.button("Predict"):   
+        data_scaled=preprocessor.transform(custom_df)
+        preds = classifier[model_name].predict(data_scaled)
+        custom_df['Prediction'] = np.where(preds == 1, 'yes', 'no')
         st.write("### Prediction Result:")
         if preds == 0:
             st.write("❌ Whoops! Customer will most likely not subscribe the term deposit")
         elif preds == 1:
             st.write("✅ Yay! The customer will most likely subscribe the term deposit")
+        st.session_state.user_input_data =  pd.concat([st.session_state.user_input_data, custom_df], ignore_index = True)
+
 
 with tab2:
+    st.write("you can view and download upto your last 10 predictions")
+    st.write(st.session_state.user_input_data.tail(10))
+    st.download_button(label="Download Predictions as CSV", data=st.session_state.user_input_data.to_csv(), file_name='predictions.csv', mime='text/csv')
+
+with tab3:
     if model_name == "XGBoost Classifier":
         fig, ax = plt.subplots()
         plot_importance(classifier[model_name], ax= ax)
@@ -127,10 +148,10 @@ with tab2:
         ax.set_yticks([])  # Remove y-axis ticks and labels
         st.pyplot(fig)
 
-with tab3:
+with tab4:
     df = results_df[["Model", "Test Recall", "Test Precision", "Best Parameters"]].sort_values(by = "Test Recall", ascending = False)
     st.title('Model scores')
-    st.dataframe(df)    
+    st.table(df)    
     
     
 
