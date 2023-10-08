@@ -116,7 +116,10 @@ def evaluate_classification_model(X, y, X_train, y_train, X_valid, y_valid, X_te
 def load_object(file_path):
     try:
         with open(file_path, "rb") as file_obj:
+            
             return pickle.load(file_obj)
 
     except Exception as e:
+        print(f"Error loading object from file: {file_path}")
+        print(e)
         raise CustomException(e, sys)

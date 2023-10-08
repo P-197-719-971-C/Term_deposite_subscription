@@ -10,6 +10,7 @@ from src.pipeline.predict_pipeline import PredictPipeline
 from src.pipeline.predict_pipeline import CustomData
 from xgboost import plot_importance
 from src.utils.common import load_object
+import pickle
 
 
 st.set_page_config(page_title="Term Deposit Prediction", page_icon="research/DallE logo.png", layout="wide")
@@ -27,22 +28,23 @@ if 'user_input_data' not in st.session_state:
 
 @st.cache_data
 def load_data():
-    best_model_name_path =os.path.join("artifacts","best_model_name.pkl")
+    
     best_model_path=os.path.join('artifacts','best_model.pkl')
     classifier_path=os.path.join('artifacts','classifier.pkl')
     recall_df_path=os.path.join('artifacts','recall_df.pkl')
     results_df_path=os.path.join('artifacts','results_df.pkl')
     preprocessor_path=os.path.join('artifacts','preprocessor.pkl')
 
-    best_model_name=load_object(file_path=best_model_name_path)
     best_model =load_object(file_path=best_model_path)
     classifier=load_object(file_path=classifier_path)
+    
     recall_df=load_object(file_path=recall_df_path)
     results_df=load_object(file_path=results_df_path)
     preprocessor=load_object(file_path=preprocessor_path)
-    return best_model_name, best_model, classifier, recall_df, results_df, preprocessor
+    
+    return best_model, classifier, recall_df, results_df, preprocessor
 
-best_model_name, best_model, classifier, recall_df, results_df, preprocessor = load_data()
+best_model, classifier, recall_df, results_df, preprocessor = load_data()
 
 with st.sidebar:
     model_name = st.selectbox("Select the model 👇", ["XGBoost Classifier", "Decision Tree", "Naive Bayes", "Logistic Regression", "AdaBoost Classifier", "Random Forest", "Support Vector Classifier"])
