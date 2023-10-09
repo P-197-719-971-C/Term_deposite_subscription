@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
+import sys
 import matplotlib.pyplot as plt
 from src.exception.exception import CustomException
 from src.logging.logger import logging
@@ -50,13 +51,14 @@ def load_data():
     results_df= pd.read_pickle(results_df_path)
     preprocessor=load_object(file_path=preprocessor_path)
 
-    decision_tree = load_object(file_path=decision_tree_path)
     naive_bayes = load_object(file_path=naive_bayes_path)
     logistic_regression = load_object(file_path = logistic_regression_path)
     adaboost = load_object(file_path=adaboost_path)
     random_forest = load_object(file_path=random_forest_path)
     svc = load_object(file_path=svc_path)
-    
+
+    decision_tree = load_object(file_path=decision_tree_path)
+
     return best_model, recall_df, results_df, preprocessor, decision_tree, naive_bayes, logistic_regression, adaboost, random_forest, svc
 
 best_model, recall_df, results_df, preprocessor, decision_tree, naive_bayes, logistic_regression, adaboost, random_forest, svc = load_data()
