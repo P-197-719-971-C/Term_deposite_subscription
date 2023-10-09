@@ -34,12 +34,12 @@ def load_data():
     recall_df_path=os.path.join('artifacts','recall_df.pkl')
     results_df_path=os.path.join('artifacts','results_df.pkl')
     preprocessor_path=os.path.join('artifacts','preprocessor.pkl')
-    decision_tree_path=os.path.join('artifacts','Decision_Tree.pkl')
-    naive_bayes_path = os.path.join('artifacts', 'Naive_Bayes.pkl')
-    logistic_regression_path = os.path.join('artifacts', 'Logistic_Regression.pkl')
-    adaboost_path = os.path.join('artifacts', 'AdaBoost_Classifier.pkl')
-    random_forest_path = os.path.join('artifacts', 'Random_Forest.pkl')
-    svc_path = os.path.join('artifacts', 'Support_Vector_Classifier')
+    decision_tree_path=os.path.join('artifacts','Decision_Tree.joblib')
+    naive_bayes_path = os.path.join('artifacts', 'Naive_Bayes.joblib')
+    logistic_regression_path = os.path.join('artifacts', 'Logistic_Regression.joblib')
+    adaboost_path = os.path.join('artifacts', 'AdaBoost_Classifier.joblib')
+    random_forest_path = os.path.join('artifacts', 'Random_Forest.joblib')
+    svc_path = os.path.join('artifacts', 'Support_Vector_Classifier.joblib')
 
 
 
@@ -47,8 +47,8 @@ def load_data():
 
 
     best_model =load_object(file_path=best_model_path)
-    recall_df = load_object(file_path=recall_df_path)
-    results_df= load_object(file_path=results_df_path)
+    recall_df = pd.read_pickle(recall_df_path)
+    results_df= pd.read_pickle(results_df_path)
     preprocessor=load_object(file_path=preprocessor_path)
 
     naive_bayes = load_object(file_path=naive_bayes_path)

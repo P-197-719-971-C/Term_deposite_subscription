@@ -4,6 +4,7 @@ from src.exception.exception import CustomException
 from src.logging.logger import logging
 from src.utils.common import load_object
 import os
+import joblib
 
 class PredictPipeline:
     def __init__(self):
