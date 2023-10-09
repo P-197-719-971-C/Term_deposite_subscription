@@ -1,4 +1,6 @@
 import os
+import pandas as pd
+import numpy as np
 import pickle
 from src.exception.exception import CustomException
 from src.logging.logger import logging
