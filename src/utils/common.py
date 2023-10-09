@@ -3,6 +3,7 @@ import sys
 import numpy as np 
 import pandas as pd
 import pickle
+import joblib
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 from src.logging.logger import logging
@@ -117,7 +118,7 @@ def load_object(file_path):
     try:
         with open(file_path, "rb") as file_obj:
             
-            return pickle.loads(file_obj)
+            return joblib.load(file_obj)
 
     except Exception as e:
         print(f"Error loading object from file: {file_path}")

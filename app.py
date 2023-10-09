@@ -47,8 +47,8 @@ def load_data():
 
 
     best_model =load_object(file_path=best_model_path)
-    recall_df = pd.read_pickle(recall_df_path)
-    results_df= pd.read_pickle(results_df_path)
+    recall_df = load_object(file_path=recall_df_path)
+    results_df= load_object(file_path=results_df_path)
     preprocessor=load_object(file_path=preprocessor_path)
 
     naive_bayes = load_object(file_path=naive_bayes_path)

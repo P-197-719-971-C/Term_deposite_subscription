@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import pickle
+import joblib
 from src.exception.exception import CustomException
 from src.logging.logger import logging
 from src.components.data_ingestion import DataIngestionConfig
@@ -12,7 +13,12 @@ from src.components.model_trainer import ModelTrainerConfig
 from src.components.model_trainer import ModelTrainer
 from src.pipeline.predict_pipeline import PredictPipeline
 from src.pipeline.predict_pipeline import CustomData
+import time
+import requests
 
+from functools import lru_cache
+
+@lru_cache(maxsize=None)
 def load_data():
     obj = DataIngestion()
     train_data, valid_data, test_data, raw_data = obj.initiate_data_ingestion()
@@ -26,39 +32,39 @@ def load_data():
 
 recall_df, best_model_name, best_model, results_df, classifier = load_data()
 
-logging.info("Saving the recall_df.pkl, best_model_name.pkl, best_model.pkl, results_df.pkl, classifier.pkl")
+logging.info("Saving the recall_df.joblib, best_model_name.joblib, best_model.joblib, results_df.joblib, classifier.joblib")
 # Create the 'artifacts' directory if it doesn't exist
 os.makedirs('artifacts', exist_ok=True)
 
 # Save each variable to a separate file within the 'artifacts' directory
-with open('artifacts/recall_df.pkl', 'wb') as file:
-    pickle.dump(recall_df, file)
+with open('artifacts/recall_df.joblib', 'wb') as file:
+    joblib.dump(recall_df, file)
 
-with open('artifacts/best_model_name.pkl', 'wb') as file:
-    pickle.dump(best_model_name, file)
+with open('artifacts/best_model_name.joblib', 'wb') as file:
+    joblib.dump(best_model_name, file)
 
-with open('artifacts/best_model.pkl', 'wb') as file:
-    pickle.dump(best_model, file)
+with open('artifacts/best_model.joblib', 'wb') as file:
+    joblib.dump(best_model, file)
 
-with open('artifacts/results_df.pkl', 'wb') as file:
-    pickle.dump(results_df, file)
+with open('artifacts/results_df.joblib', 'wb') as file:
+    joblib.dump(results_df, file)
 
-with open('artifacts/Decision_Tree.pkl', 'wb') as file:
-    pickle.dump(classifier["Decision Tree"], file)
+with open('artifacts/Decision_Tree.joblib', 'wb') as file:
+    joblib.dump(classifier["Decision Tree"], file)
 
-with open('artifacts/Naive_Bayes.pkl', 'wb') as file:
-    pickle.dump(classifier["Naive Bayes"], file)
+with open('artifacts/Naive_Bayes.joblib', 'wb') as file:
+    joblib.dump(classifier["Naive Bayes"], file)
 
-with open('artifacts/Logistic_Regression.pkl', 'wb') as file:
-    pickle.dump(classifier["Logistic Regression"], file)
+with open('artifacts/Logistic_Regression.joblib', 'wb') as file:
+    joblib.dump(classifier["Logistic Regression"], file)
 
-with open('artifacts/AdaBoost_Classifier.pkl', 'wb') as file:
-    pickle.dump(classifier["AdaBoost Classifier"], file)
+with open('artifacts/AdaBoost_Classifier.joblib', 'wb') as file:
+    joblib.dump(classifier["AdaBoost Classifier"], file)
 
-with open('artifacts/Random_Forest.pkl', 'wb') as file:
-    pickle.dump(classifier["Random Forest"], file)
+with open('artifacts/Random_Forest.joblib', 'wb') as file:
+    joblib.dump(classifier["Random Forest"], file)
 
 with open('artifacts/Support_Vector_Classifier', 'wb') as file:
-    pickle.dump(classifier["Support Vector Classifier"], file)
+    joblib.dump(classifier["Support Vector Classifier"], file)
 
 print("Results have been saved in the 'artifacts' directory.")
