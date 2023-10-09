@@ -13,7 +13,7 @@ from src.utils.common import load_object
 import pickle
 
 
-st.set_page_config(page_title="Term Deposit Prediction", page_icon="research/DallE logo.png", layout="wide")
+st.set_page_config(page_title="Term Depo`sit Prediction", page_icon="research/DallE logo.png", layout="wide")
 
 st.markdown("""
 <style>
@@ -30,28 +30,58 @@ if 'user_input_data' not in st.session_state:
 def load_data():
     
     best_model_path=os.path.join('artifacts','best_model.pkl')
-    classifier_path=os.path.join('artifacts','classifier.pkl')
     recall_df_path=os.path.join('artifacts','recall_df.pkl')
     results_df_path=os.path.join('artifacts','results_df.pkl')
     preprocessor_path=os.path.join('artifacts','preprocessor.pkl')
+    decision_tree_path=os.path.join('artifacts','Decision_Tree.pkl')
+    naive_bayes_path = os.path.join('artifacts', 'Naive_Bayes.pkl')
+    logistic_regression_path = os.path.join('artifacts', 'Logistic_Regression.pkl')
+    adaboost_path = os.path.join('artifacts', 'AdaBoost_Classifier.pkl')
+    random_forest_path = os.path.join('artifacts', 'Random_Forest.pkl')
+    svc_path = os.path.join('artifacts', 'Support_Vector_Classifier')
+
+
+
+
+
 
     best_model =load_object(file_path=best_model_path)
-    classifier=load_object(file_path=classifier_path)
-    
     recall_df=load_object(file_path=recall_df_path)
     results_df=load_object(file_path=results_df_path)
     preprocessor=load_object(file_path=preprocessor_path)
-    
-    return best_model, classifier, recall_df, results_df, preprocessor
 
-best_model, classifier, recall_df, results_df, preprocessor = load_data()
+    decision_tree = load_object(file_path=decision_tree_path)
+    naive_bayes = load_object(file_path=naive_bayes_path)
+    logistic_regression = load_object(file_path = logistic_regression_path)
+    adaboost = load_object(file_path=adaboost_path)
+    random_forest = load_object(file_path=random_forest_path)
+    svc = load_object(file_path=svc_path)
+    
+    return best_model, recall_df, results_df, preprocessor, decision_tree, naive_bayes, logistic_regression, adaboost, random_forest, svc
+
+best_model, recall_df, results_df, preprocessor, decision_tree, naive_bayes, logistic_regression, adaboost, random_forest, svc = load_data()
 
 with st.sidebar:
     model_name = st.selectbox("Select the model 👇", ["XGBoost Classifier", "Decision Tree", "Naive Bayes", "Logistic Regression", "AdaBoost Classifier", "Random Forest", "Support Vector Classifier"])
     if model_name == 'XGBoost Classifier':
+        model = best_model
         st.write('You selected the best model.')
-    else:
+    elif model_name == "Decision Tree":
+        model = decision_tree
+    elif model_name == "Naive Bayes":
+        model = naive_bayes
         st.write("You didn\'t select the best model.")
+    elif model_name == "Logistic Regression":
+        model = logistic_regression
+        st.write("You didn\'t select the best model.")
+    elif model_name == "AdaBoost Classifier":
+        model = adaboost
+        st.write("You didn\'t select the best model.")
+    elif model_name == "Random Forest":
+        model = random_forest
+    elif model_name == "Support Vector Classifier":
+        model = svc
+    
 
 #st.image("research/DallE logo.png", width=100)
 # Main content
@@ -110,7 +140,7 @@ with tab1:
     
     if st.button("Predict"):   
         data_scaled=preprocessor.transform(custom_df)
-        preds = classifier[model_name].predict(data_scaled)
+        preds = model.predict(data_scaled)
         custom_df['Prediction'] = np.where(preds == 1, 'yes', 'no')
         st.write("### Prediction Result:")
         if preds == 0:
@@ -128,13 +158,13 @@ with tab2:
 with tab3:
     if model_name == "XGBoost Classifier":
         fig, ax = plt.subplots()
-        plot_importance(classifier[model_name], ax= ax)
+        plot_importance(model, ax= ax)
         st.pyplot(fig)
     elif model_name in ["Logistic Regression", "Support Vector Classifier", "Naive Bayes"]:
         st.write("Feature importance curve couldn't be generated using XGBoost, our best model. Don't worry, there are plenty of other exciting options to explore! 😊 ")
         
     else:
-        feature_importance = classifier[model_name].feature_importances_
+        feature_importance = model.feature_importances_
 
         # Create a DataFrame for visualization
         feature_importance_df = pd.DataFrame({'Importance': feature_importance})

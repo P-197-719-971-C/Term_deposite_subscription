@@ -11,7 +11,6 @@ from src.components.model_trainer import ModelTrainer
 from src.pipeline.predict_pipeline import PredictPipeline
 from src.pipeline.predict_pipeline import CustomData
 
-
 def load_data():
     obj = DataIngestion()
     train_data, valid_data, test_data, raw_data = obj.initiate_data_ingestion()
@@ -42,7 +41,22 @@ with open('artifacts/best_model.pkl', 'wb') as file:
 with open('artifacts/results_df.pkl', 'wb') as file:
     pickle.dump(results_df, file)
 
-with open('artifacts/classifier.pkl', 'wb') as file:
-    pickle.dump(classifier, file)
+with open('artifacts/Decision_Tree.pkl', 'wb') as file:
+    pickle.dump(classifier["Decision Tree"], file)
+
+with open('artifacts/Naive_Bayes.pkl', 'wb') as file:
+    pickle.dump(classifier["Naive Bayes"], file)
+
+with open('artifacts/Logistic_Regression.pkl', 'wb') as file:
+    pickle.dump(classifier["Logistic Regression"], file)
+
+with open('artifacts/AdaBoost_Classifier.pkl', 'wb') as file:
+    pickle.dump(classifier["AdaBoost Classifier"], file)
+
+with open('artifacts/Random_Forest.pkl', 'wb') as file:
+    pickle.dump(classifier["Random Forest"], file)
+
+with open('artifacts/Support_Vector_Classifier', 'wb') as file:
+    pickle.dump(classifier["Support Vector Classifier"], file)
 
 print("Results have been saved in the 'artifacts' directory.")
